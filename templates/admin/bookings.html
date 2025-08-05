@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Bookings - ParkEasy Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-car"></i> ParkEasy Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-calendar-alt"></i> All User Bookings</h2>
+            <a href="/admin/dashboard" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Search and Filter Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Search & Filter Bookings</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Search User</label>
+                            <input type="text" class="form-control" name="search_user" 
+                                   value="{{ search_user }}" placeholder="Username or email">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Search Parking Lot</label>
+                            <input type="text" class="form-control" name="search_lot" 
+                                   value="{{ search_lot }}" placeholder="Lot name">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-control" name="status">
+                                <option value="">All Status</option>
+                                <option value="active" {{ 'selected' if status_filter == 'active' }}>Active</option>
+                                <option value="completed" {{ 'selected' if status_filter == 'completed' }}>Completed</option>
+                                <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>Cancelled</option>
+                                <option value="expired" {{ 'selected' if status_filter == 'expired' }}>Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" name="date_from" value="{{ date_from }}">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" name="date_to" value="{{ date_to }}">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="/admin/bookings" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body">
+                {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>User</th>
+                                <th>Parking Lot</th>
+                                <th>Slot</th>
+                                <th>Vehicle</th>
+                                <th>Duration</th>
+                                <th>Cost</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td><strong>#{{ booking.id }}</strong></td>
+                                <td>
+                                    <strong>{{ booking.username }}</strong><br>
+                                    <small class="text-muted">{{ booking.email }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ booking.lot_name }}</strong><br>
+                                    <small class="text-muted">{{ booking.location }}</small>
+                                </td>
+                                <td><span class="badge bg-info">Slot {{ booking.slot_number }}</span></td>
+                                <td>
+                                    <strong>{{ booking.vehicle_number }}</strong><br>
+                                    <small class="text-muted">{{ booking.vehicle_type.title() }}</small>
+                                </td>
+                                <td>
+                                    <small>{{ booking.start_time }}</small><br>
+                                    <small>{{ booking.end_time }}</small>
+                                </td>
+                                <td><strong>${{ '%.2f' | format(booking.total_cost) }}</strong></td>
+                                <td>
+                                    {% if booking.status == 'active' %}
+                                        <span class="badge bg-success">{{ booking.status.title() }}</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-primary">{{ booking.status.title() }}</span>
+                                    {% elif booking.status == 'expired' %}
+                                        <span class="badge bg-warning">{{ booking.status.title() }}</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ booking.status.title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ booking.created_at }}</small></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                    <h4>No Bookings Found</h4>
+                    <p class="text-muted">No bookings match your search criteria.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
